@@ -1,0 +1,26 @@
+{
+  "name": "bgem",
+  "version": "0.1.0",
+  "builtin-baseline": "1e199d32ad53aab1defda61ce41c380302e3f95c",
+  "dependencies": [
+    {
+      "name": "sdl3",
+      "features": [ "x11", "wayland" ],
+      "platform": "linux"
+    },
+    {
+      "name": "sdl3",
+      "platform": "!linux"
+    },
+    "freetype",
+    "harfbuzz",
+    {
+      "name": "angle",
+      "platform": "!linux"
+    },
+    {
+      "name": "opengl",
+      "platform": "linux"
+    }
+  ]
+}
