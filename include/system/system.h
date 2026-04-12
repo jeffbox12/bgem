@@ -3,9 +3,9 @@
  *  Copyright (c) 2026 Cătălin Gabriel Drăghiță
  */
 
-#ifndef INIT_WINDOW_H
-#define INIT_WINDOW_H
+#ifndef SYSTEM_H
+#define SYSTEM_H
 
 int bgem_system_start(void);
 
-#endif /* INIT_WINDOW_H */
+#endif // SYSTEM_H
