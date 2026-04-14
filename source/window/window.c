@@ -8,15 +8,8 @@
  *  and running the loop
  */
 
-#include <stdio.h>
 #include <stdlib.h>
-#if defined(__APPLE__) || defined(__linux__)
-#include <time.h>
-#endif
 
-#if defined(_WIN32)
-#include <windows.h>
-#endif
 #include <SDL3/SDL.h>
 
 #include "window/window.h"
@@ -30,16 +23,15 @@
 #define VER_RES 1080
 #define SCL_DWN 2 // Scale Down using division
 
-bgem_createWindow* bgem_window_createWindow(void)
+bgem_window_handle* bgem_window_createWindow(void)
 {
-    bgem_createWindow* cw = {0};
+    bgem_window_handle* wh = NULL;
     SDL_Window *window;
 
     if (SDL_Init(SDL_INIT_VIDEO) == 0)
     {
         DEBUG_PRINT("SDL_Init failed: %s\n", SDL_GetError());
-        cw->status = EXIT_FAILURE;
-        return cw;
+        return NULL;
     }
 
     window = SDL_CreateWindow(
@@ -51,15 +43,14 @@ bgem_createWindow* bgem_window_createWindow(void)
     if (!window)
     {
         DEBUG_PRINT("SDL_CreateWindow failed: %s\n", SDL_GetError());
-        cw->status = EXIT_FAILURE;
-        return cw;
+        return NULL;
     }
 
-    cw = (bgem_createWindow*)malloc(sizeof(bgem_createWindow));
+    wh = (bgem_window_handle*)malloc(sizeof(bgem_window_handle));
+    if (!wh) return NULL;
 
-    cw->window = window;
-    cw->window_ctx = bgem_platform_createContext(cw->window);
-    cw->status = EXIT_SUCCESS;
+    wh->window = window;
+    wh->window_ctx = bgem_platform_createContext(wh->window);
 
-    return cw;
+    return wh;
 }

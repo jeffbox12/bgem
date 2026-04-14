@@ -11,7 +11,7 @@
 
 #include "window/window.h"
 #include "platform/platform_window.h"
-#include "renderer/loop.h"
+#include "renderer/render_loop.h"
 #include "renderer/shader.h"
 #include "renderer/renderer.h"
 #include "core/debug.h"
@@ -43,7 +43,7 @@ static double get_time_seconds(void)
 #endif
 }
 
-int bgem_renderer_loop(bgem_createWindow *cw)
+int bgem_renderer_loop(bgem_window_handle *wh)
 {
     int running = 1;
     SDL_Event event;
@@ -74,15 +74,15 @@ int bgem_renderer_loop(bgem_createWindow *cw)
 
         bgem_renderer_render(time);
 
-        bgem_platform_swapBuffers(cw->window_ctx);
+        bgem_platform_swapBuffers(wh->window_ctx);
 
         frame_time = SDL_GetTicks() - frame_start;
         if (frame_delay > frame_time)
             SDL_Delay((Uint32)(frame_delay - frame_time));
     }
 
-    bgem_platform_destroyContext(cw->window_ctx);
-    SDL_DestroyWindow(cw->window);
+    bgem_platform_destroyContext(wh->window_ctx);
+    SDL_DestroyWindow(wh->window);
     SDL_Quit();
     return EXIT_SUCCESS;
 }
