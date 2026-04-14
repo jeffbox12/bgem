@@ -13,7 +13,7 @@
 
 int bgem_app_init(void)
 {
-    bgem_window_handle* wh = bgem_window_createWindow();
+    bgem_window_handle* wh = bgem_window_createWindow(BGEM_DEFAULT);
     if(!wh) return EXIT_FAILURE;
 
     bgem_renderer_loop(wh);
