@@ -1,5 +1,6 @@
 add_library(system
     system.c
+    display.c
 )
 
 target_include_directories(system PUBLIC

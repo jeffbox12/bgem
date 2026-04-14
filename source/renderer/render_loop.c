@@ -53,6 +53,9 @@ int bgem_renderer_loop(bgem_window_handle *wh)
     int running = 1;
     SDL_Event event;
     int w, h;
+#if defined(_WIN32) || defined(__linux__)
+    bool b = true;
+#endif
 
     SDL_GetWindowSizeInPixels(wh->window, &w, &h);
     bgem_renderer_setWindowSize(w, h);
@@ -91,6 +94,14 @@ int bgem_renderer_loop(bgem_window_handle *wh)
 #endif
                 bgem_renderer_setWindowSize(w, h);
             }
+#if defined(_WIN32) || defined(__linux__)
+                if (event.type == SDL_EVENT_KEY_DOWN) {
+                    if (event.key.key == SDLK_F11) {
+                        SDL_SetWindowFullscreen(wh->window, b);
+                        b = !b;
+                    }
+                }
+#endif
         }
         double current = get_time_seconds();
         float time = (float)(current - startTime);
