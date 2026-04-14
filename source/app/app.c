@@ -6,13 +6,16 @@
 #include <stdlib.h>
 
 #include "renderer/renderer.h"
-#include "renderer/loop.h"
+#include "renderer/render_loop.h"
 #include "window/window.h"
 #include "app/app.h"
 #include "core/debug.h"
 
 int bgem_app_init(void)
 {
-    bgem_renderer_loop(bgem_window_createWindow());
+    bgem_window_handle* wh = bgem_window_createWindow();
+    if(!wh) return EXIT_FAILURE;
+
+    bgem_renderer_loop(wh);
     return EXIT_SUCCESS;
 }

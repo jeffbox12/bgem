@@ -15,6 +15,4 @@
     #define DEBUG_PRINT(fmt, ...) do {} while (0)
 #endif
 
-void bgem_debug_stud(void);
-
 #endif /* DEBUG_H */

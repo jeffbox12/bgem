@@ -13,6 +13,7 @@ int bgem_system_start(void)
 {
     DEBUG_PRINT("Hello Bluegem!");
 
-    bgem_app_init();
+    if(bgem_app_init()) return EXIT_FAILURE;
+
     return EXIT_SUCCESS;
 }
