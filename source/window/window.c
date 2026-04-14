@@ -23,8 +23,9 @@
 #define VER_RES 1080
 #define SCL_DWN 2 // Scale Down using division
 
-bgem_window_handle* bgem_window_createWindow(void)
+bgem_window_handle* bgem_window_createWindow(bgem_window_mode wm)
 {
+    DEBUG_PRINT("Window mode chosen: %d", wm);
     bgem_window_handle* wh = NULL;
     SDL_Window *window;
 
