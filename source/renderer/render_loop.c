@@ -74,7 +74,7 @@ int bgem_renderer_loop(bgem_window_handle *wh)
 
         bgem_renderer_render(time);
 
-        bgem_platform_swapBuffers(wh->window_ctx);
+        bgem_renderer_present(wh->window_ctx);
 
         frame_time = SDL_GetTicks() - frame_start;
         if (frame_delay > frame_time)

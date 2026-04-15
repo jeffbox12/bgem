@@ -10,6 +10,7 @@
 
 #include "renderer/renderer.h"
 #include "renderer/shader.h"
+#include "platform/platform_window.h"
 #include "core/debug.h"
 
 static GLuint program;
@@ -66,4 +67,9 @@ void bgem_renderer_render(float time)
     glVertexAttribPointer(posLocation, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
     glDrawArrays(GL_TRIANGLES, 0, 3);
+}
+
+void bgem_renderer_present(bgem_platform_windowContext *ctx)
+{
+    bgem_platform_swapBuffers(ctx);
 }
