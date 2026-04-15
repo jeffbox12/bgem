@@ -17,5 +17,6 @@ int bgem_app_init(void)
     if(!wh) return EXIT_FAILURE;
 
     bgem_renderer_loop(wh);
+    free(wh);
     return EXIT_SUCCESS;
 }
