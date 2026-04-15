@@ -28,12 +28,6 @@ bgem_window_handle* bgem_window_createWindow(void)
     bgem_window_handle* wh = NULL;
     SDL_Window *window;
 
-    if (SDL_Init(SDL_INIT_VIDEO) == 0)
-    {
-        DEBUG_PRINT("SDL_Init failed: %s\n", SDL_GetError());
-        return NULL;
-    }
-
     window = SDL_CreateWindow(
         "Project Bluegem",
         HOR_RES / SCL_DWN,
