@@ -47,10 +47,10 @@ bgem_window_handle* bgem_window_createWindow(void)
     }
 
     wh = (bgem_window_handle*)malloc(sizeof(bgem_window_handle));
-    if (!wh) return NULL;
 
     wh->window = window;
     wh->window_ctx = bgem_platform_createContext(wh->window);
+    if (!wh->window_ctx) { free(wh); return NULL; }
 
     return wh;
 }
