@@ -8,11 +8,13 @@
 #include "system/system.h"
 #include "app/app.h"
 #include "core/debug.h"
+#include "bgem_version.h"
 
 #include <SDL3/SDL.h>
 
 int bgem_system_start(void)
 {
+    DEBUG_PRINT("%s", BGEM_VERSION_STRING);
     DEBUG_PRINT("Hello Bluegem!");
 
     if (SDL_InitSubSystem(SDL_INIT_VIDEO) == 0)
