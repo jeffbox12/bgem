@@ -15,7 +15,7 @@ int bgem_system_start(void)
 {
     DEBUG_PRINT("Hello Bluegem!");
 
-    if (SDL_Init(SDL_INIT_VIDEO) == 0)
+    if (SDL_InitSubSystem(SDL_INIT_VIDEO) == 0)
     {
         DEBUG_PRINT("SDL_Init failed: %s\n", SDL_GetError());
         return EXIT_FAILURE;
