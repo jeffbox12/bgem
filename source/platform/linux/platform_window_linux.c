@@ -77,6 +77,7 @@ bgem_platform_windowContext* bgem_platform_createContext(SDL_Window *window)
         else if (strcmp(driver, "x11") == 0)
         {
             DEBUG_PRINT("Environment: X11 (or XWayland)\n");
+            wl_win = NULL;
             x11Window = SDL_GetNumberProperty(props,
                                               SDL_PROP_WINDOW_X11_WINDOW_NUMBER,
                                               0);
