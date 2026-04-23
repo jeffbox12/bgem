@@ -5,6 +5,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <errno.h>
 
 #include "renderer/shader.h"
 #include "core/debug.h"
@@ -13,8 +15,10 @@
 static char* ReadFile(const char* path)
 {
     FILE* file = fopen(path, "rb");
-    if (!file)
+    if (!file) {
+        DEBUG_PRINT("fopen failed: %s (errno: %s)", path, strerror(errno));
         return NULL;
+    }
 
     fseek(file, 0, SEEK_END);
     long size = ftell(file);
@@ -30,6 +34,7 @@ static char* ReadFile(const char* path)
 
 static GLuint CompileShader(GLenum type, const char* source)
 {
+    if(!source) { DEBUG_PRINT("File does not exist"); return EXIT_FAILURE; }
     GLuint shader = glCreateShader(type);
     glShaderSource(shader, 1, &source, NULL);
     glCompileShader(shader);
@@ -51,6 +56,13 @@ GLuint bgem_shader_createProgram(const char* vertexPath, const char* fragmentPat
 {
     char* vertexSource = ReadFile(vertexPath);
     char* fragmentSource = ReadFile(fragmentPath);
+
+    if (!vertexSource || !fragmentSource) {
+        DEBUG_PRINT("Failed to read shader source path!");
+        free(vertexSource);
+        free(fragmentSource);
+        return EXIT_FAILURE;
+    }
 
     GLuint vertexShader = CompileShader(GL_VERTEX_SHADER, vertexSource);
     GLuint fragmentShader = CompileShader(GL_FRAGMENT_SHADER, fragmentSource);
