@@ -104,6 +104,11 @@ void bgem_platform_swapBuffers(bgem_platform_windowContext *ctx)
 {
     eglSwapBuffers(ctx->display, ctx->surface);
 }
+void bgem_platform_getSurfaceSize(bgem_platform_windowContext *ctx, int *w, int *h)
+{
+    eglQuerySurface(ctx->display, ctx->surface, EGL_WIDTH,  w);
+    eglQuerySurface(ctx->display, ctx->surface, EGL_HEIGHT, h);
+}
 
 void bgem_platform_destroyContext(bgem_platform_windowContext *ctx)
 {
