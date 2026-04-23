@@ -47,6 +47,10 @@ int bgem_renderer_loop(bgem_window_handle *wh)
 {
     int running = 1;
     SDL_Event event;
+    int w, h;
+
+    bgem_platform_getSurfaceSize(wh->window_ctx, &w, &h);
+    bgem_renderer_setWindowSize(w, h);
 
     bgem_renderer_init();
 
@@ -68,13 +72,26 @@ int bgem_renderer_loop(bgem_window_handle *wh)
             if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
                 running = 0;  // Exit on click
             }
+            if (event.type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED) {
+#if defined(_WIN32)
+                w = event.window.data1;
+                h = event.window.data2;
+#elif defined(__linux__)
+                w = event.window.data1;
+                h = event.window.data2;
+                bgem_platform_waylandResizeSurface(wh->window_ctx, w, h);
+#elif defined(__APPLE__)
+                bgem_platform_getSurfaceSize(wh->window_ctx, &w, &h);
+#endif
+                bgem_renderer_setWindowSize(w, h);
+            }
         }
         double current = get_time_seconds();
         float time = (float)(current - startTime);
 
         bgem_renderer_render(time);
 
-        bgem_renderer_present(wh->window_ctx);
+        bgem_renderer_present(wh->window_ctx, w, h);
 
         frame_time = SDL_GetTicks() - frame_start;
         if (frame_delay > frame_time)

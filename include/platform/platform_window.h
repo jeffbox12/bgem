@@ -17,6 +17,7 @@ typedef struct bgem_platform_windowContext bgem_platform_windowContext;
 /* Create graphics context attached to SDL window */
 bgem_platform_windowContext* bgem_platform_createContext(SDL_Window *window);
 void bgem_platform_swapBuffers(bgem_platform_windowContext *platformContext);
+void bgem_platform_getSurfaceSize(bgem_platform_windowContext *ctx, int *w, int *h);
 void bgem_platform_destroyContext(bgem_platform_windowContext *platformContext);
 
 #endif //PLATFORM_WINDOW_H
