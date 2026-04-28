@@ -35,8 +35,22 @@ static int internal_h = 1080;
 static int window_w   = 1280;   /* updated via bgem_renderer_setWindowSize() */
 static int window_h   = 720;
 
-static void create_fbo(void)
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+void bgem_renderer_setWindowSize(int w, int h)
 {
+    window_w = w;
+    window_h = h;
+}
+
+void bgem_renderer_init(void)
+{
+    /* PLACEHOLDER! Move this to a dedicated file for handling path resolution */
+    const char *basePath = SDL_GetBasePath();
+    if (!basePath)
+        SDL_Log("SDL_GetBasePath failed: %s", SDL_GetError());
+
+    /* Creste offscreen FBO */
     /* Color texture at internal resolution */
     glGenTextures(1, &fbo_texture);
     glBindTexture(GL_TEXTURE_2D, fbo_texture);
@@ -59,33 +73,23 @@ static void create_fbo(void)
         DEBUG_PRINT("FBO incomplete: 0x%x\n", status);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
 
-/* ─────────────────────────────────────────────────────────────────────────── */
-
-void bgem_renderer_setWindowSize(int w, int h)
-{
-    window_w = w;
-    window_h = h;
-}
-
-void bgem_renderer_init(void)
-{
-    /* ── Scene shader ───────────────────────────────────────────────────── */
-    const char *basePath = SDL_GetBasePath();
-    if (!basePath)
-        SDL_Log("SDL_GetBasePath failed: %s", SDL_GetError());
-
+    /* Create `testshader` shader */
+    /* PLACEHOLDER! This shader should not be here. */
     char vertexPath[1024];
     snprintf(vertexPath, sizeof(vertexPath),
              "%sassets/shaders/testshader/vertex.glsl", basePath);
     DEBUG_PRINT("Opening vertex shader at: %s\n", vertexPath);
-
     char fragmentPath[1024];
     snprintf(fragmentPath, sizeof(fragmentPath),
              "%sassets/shaders/testshader/fragment.glsl", basePath);
     DEBUG_PRINT("Opening fragment shader at: %s\n", fragmentPath);
 
+    program     = bgem_shader_createProgram(vertexPath, fragmentPath);
+    posLocation = glGetAttribLocation(program, "aPos");
+    timeLocation = glGetUniformLocation(program, "uTime");
+
+    /* Create `blit` shader */
     char blit_vert_src[1024];
     snprintf(blit_vert_src, sizeof(blit_vert_src),
              "%sassets/shaders/blit/vertex.glsl", basePath);
@@ -96,22 +100,17 @@ void bgem_renderer_init(void)
              "%sassets/shaders/blit/fragment.glsl", basePath);
     DEBUG_PRINT("Opening fragment shader at: %s\n", blit_frag_src);
 
-    program     = bgem_shader_createProgram(vertexPath, fragmentPath);
-    posLocation = glGetAttribLocation(program, "aPos");
-    timeLocation = glGetUniformLocation(program, "uTime");
-
-    float vertices[] = { -1.0f, -1.0f,  3.0f, -1.0f,  -1.0f,  3.0f };
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    /* ── Offscreen FBO ─────────────────────────────────────────────────── */
-    create_fbo();
-
-    /* ── Blit quad ─────────────────────────────────────────────────────── */
     blit_program    = bgem_shader_createProgram(blit_vert_src, blit_frag_src);
     blit_posLocation = glGetAttribLocation(blit_program, "aPos");
     blit_texLocation = glGetUniformLocation(blit_program, "uTex");
+
+    /* Define vertices for fullscreen triangle */
+    float vertices[] = { -1.0f, -1.0f,  3.0f, -1.0f,  -1.0f,  3.0f };
+
+    /* Store vertices in a buffer */
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     /* Reuse the same fullscreen triangle geometry */
     glGenBuffers(1, &blit_vbo);
