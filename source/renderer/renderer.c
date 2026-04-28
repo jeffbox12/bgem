@@ -35,64 +35,6 @@ static int internal_h = 1080;
 static int window_w   = 1280;   /* updated via bgem_renderer_setWindowSize() */
 static int window_h   = 720;
 
-/* ── Blit shader sources (inline, no files needed) ─────────────────────────── */
-static const char *blit_vert_src =
-    "#version 300 es\n"
-    "in vec2 aPos;\n"
-    "out vec2 vUV;\n"
-    "void main() {\n"
-    "    vUV = aPos * 0.5 + 0.5;\n"
-    "    gl_Position = vec4(aPos, 0.0, 1.0);\n"
-    "}\n";
-
-static const char *blit_frag_src =
-    "#version 300 es\n"
-    "precision mediump float;\n"
-    "in vec2 vUV;\n"
-    "uniform sampler2D uTex;\n"
-    "out vec4 fragColor;\n"
-    "void main() {\n"
-    "    fragColor = texture(uTex, vUV);\n"
-    "}\n";
-
-/* ── Helpers ────────────────────────────────────────────────────────────────── */
-static GLuint compile_inline(GLenum type, const char *src)
-{
-    GLuint shader = glCreateShader(type);
-    glShaderSource(shader, 1, &src, NULL);
-    glCompileShader(shader);
-
-    GLint ok;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &ok);
-    if (!ok) {
-        char log[512];
-        glGetShaderInfoLog(shader, sizeof(log), NULL, log);
-        DEBUG_PRINT("Blit shader compile error:\n%s\n", log);
-    }
-    return shader;
-}
-
-static GLuint link_inline(const char *vert, const char *frag)
-{
-    GLuint vs  = compile_inline(GL_VERTEX_SHADER,   vert);
-    GLuint fs  = compile_inline(GL_FRAGMENT_SHADER, frag);
-    GLuint prg = glCreateProgram();
-    glAttachShader(prg, vs);
-    glAttachShader(prg, fs);
-    glLinkProgram(prg);
-
-    GLint ok;
-    glGetProgramiv(prg, GL_LINK_STATUS, &ok);
-    if (!ok) {
-        char log[512];
-        glGetProgramInfoLog(prg, sizeof(log), NULL, log);
-        DEBUG_PRINT("Blit program link error:\n%s\n", log);
-    }
-    glDeleteShader(vs);
-    glDeleteShader(fs);
-    return prg;
-}
-
 static void create_fbo(void)
 {
     /* Color texture at internal resolution */
@@ -144,6 +86,16 @@ void bgem_renderer_init(void)
              "%sassets/shaders/testshader/fragment.glsl", basePath);
     DEBUG_PRINT("Opening fragment shader at: %s\n", fragmentPath);
 
+    char blit_vert_src[1024];
+    snprintf(blit_vert_src, sizeof(blit_vert_src),
+             "%sassets/shaders/blit/vertex.glsl", basePath);
+    DEBUG_PRINT("Opening vertex shader at: %s\n", blit_vert_src);
+
+    char blit_frag_src[1024];
+    snprintf(blit_frag_src, sizeof(blit_frag_src),
+             "%sassets/shaders/blit/fragment.glsl", basePath);
+    DEBUG_PRINT("Opening fragment shader at: %s\n", blit_frag_src);
+
     program     = bgem_shader_createProgram(vertexPath, fragmentPath);
     posLocation = glGetAttribLocation(program, "aPos");
     timeLocation = glGetUniformLocation(program, "uTime");
@@ -157,7 +109,7 @@ void bgem_renderer_init(void)
     create_fbo();
 
     /* ── Blit quad ─────────────────────────────────────────────────────── */
-    blit_program    = link_inline(blit_vert_src, blit_frag_src);
+    blit_program    = bgem_shader_createProgram(blit_vert_src, blit_frag_src);
     blit_posLocation = glGetAttribLocation(blit_program, "aPos");
     blit_texLocation = glGetUniformLocation(blit_program, "uTex");
 
