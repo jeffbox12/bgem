@@ -32,15 +32,28 @@ static GLint  blit_posLocation;
 /* ── Resolutions ───────────────────────────────────────────────────────────── */
 static int internal_w = 1920;
 static int internal_h = 1080;
-static int window_w   = 1280;   /* updated via bgem_renderer_setWindowSize() */
-static int window_h   = 720;
+
+/* ── Cached letterbox viewport (recomputed only in setWindowSize) ──────────── */
+static struct {
+    int x, y, w, h;
+    int window_w, window_h; /* updated via bgem_renderer_setWindowSize() */
+} viewport;
 
 /* ─────────────────────────────────────────────────────────────────────────── */
 
 void bgem_renderer_setWindowSize(int w, int h)
 {
-    window_w = w;
-    window_h = h;
+    viewport.window_w = w;
+    viewport.window_h = h;
+
+    float scale_x = (float)w / (float)internal_w;
+    float scale_y = (float)h / (float)internal_h;
+    float scale   = scale_x < scale_y ? scale_x : scale_y; /* fit, no crop */
+
+    viewport.w = (int)(internal_w * scale);
+    viewport.h = (int)(internal_h * scale);
+    viewport.x = (w - viewport.w) / 2;
+    viewport.y = (h - viewport.h) / 2;
 }
 
 void bgem_renderer_init(void)
@@ -137,23 +150,13 @@ void bgem_renderer_render(float time)
 
 void bgem_renderer_present(bgem_platform_windowContext *ctx, int window_width, int window_height)
 {
-    /* ── Compute a letterboxed/pillarboxed viewport ──────────────────────── */
-    float scale_x = (float)window_width / (float)internal_w;
-    float scale_y = (float)window_height / (float)internal_h;
-    float scale   = scale_x < scale_y ? scale_x : scale_y;   /* fit, no crop */
-
-    int draw_w  = (int)(internal_w * scale);
-    int draw_h  = (int)(internal_h * scale);
-    int offset_x = (window_width - draw_w) / 2;
-    int offset_y = (window_height - draw_h) / 2;
-
     /* Clear the full window (shows letterbox bars in clear color) */
     glViewport(0, 0, window_width, window_height);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     /* Blit FBO texture into the fitted rect */
-    glViewport(offset_x, offset_y, draw_w, draw_h);
+    glViewport(viewport.x, viewport.y, viewport.w, viewport.h);
     glUseProgram(blit_program);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, fbo_texture);
