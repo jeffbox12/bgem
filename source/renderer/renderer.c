@@ -13,33 +13,28 @@
 #include "platform/platform_window.h"
 #include "core/debug.h"
 
-/* ── Scene state ───────────────────────────────────────────────────────────── */
 static GLuint program;
 static GLuint vbo;
 static GLint  timeLocation;
 static GLint  posLocation;
 
-/* ── Offscreen FBO ─────────────────────────────────────────────────────────── */
 static GLuint fbo;
 static GLuint fbo_texture;
 
-/* ── Blit quad ─────────────────────────────────────────────────────────────── */
 static GLuint blit_program;
 static GLuint blit_vbo;
 static GLint  blit_texLocation;
 static GLint  blit_posLocation;
 
-/* ── Resolutions ───────────────────────────────────────────────────────────── */
+/* Internal renderer resolution */
 static int internal_w = 1920;
 static int internal_h = 1080;
 
-/* ── Cached letterbox viewport (recomputed only in setWindowSize) ──────────── */
+/* Cached letterbox viewport */
 static struct {
     int x, y, w, h;
     int window_w, window_h; /* updated via bgem_renderer_setWindowSize() */
 } viewport;
-
-/* ─────────────────────────────────────────────────────────────────────────── */
 
 void bgem_renderer_setWindowSize(int w, int h)
 {
@@ -133,7 +128,7 @@ void bgem_renderer_init(void)
 
 void bgem_renderer_render(float time)
 {
-    /* ── Render scene into FBO at internal resolution ───────────────────── */
+    /* Render scene into FBO at internal resolution */
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glViewport(0, 0, internal_w, internal_h);
 
