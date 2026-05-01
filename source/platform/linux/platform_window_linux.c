@@ -161,12 +161,6 @@ void bgem_platform_waylandResizeSurface(bgem_platform_windowContext *ctx, int w,
     if (ctx->wl_win) wl_egl_window_resize(ctx->wl_win, w, h, 0, 0);
 }
 
-void bgem_platform_getSurfaceSize(bgem_platform_windowContext *ctx, int *w, int *h)
-{
-    eglQuerySurface(ctx->display, ctx->surface, EGL_WIDTH,  w);
-    eglQuerySurface(ctx->display, ctx->surface, EGL_HEIGHT, h);
-}
-
 void bgem_platform_destroyContext(bgem_platform_windowContext *ctx)
 {
     if (!ctx) return;
