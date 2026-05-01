@@ -29,11 +29,17 @@ bgem_window_handle* bgem_window_createWindow(bgem_window_mode wm)
     bgem_window_handle* wh = NULL;
     SDL_Window *window;
 
+    SDL_DisplayID display = SDL_GetPrimaryDisplay();
+    float scale = SDL_GetDisplayContentScale(display);
+    if (scale <= 0.0f) scale = 1.0f;
+    int win_w = (int)((HOR_RES / SCL_DWN) * scale);
+    int win_h = (int)((VER_RES / SCL_DWN) * scale);
+
     window = SDL_CreateWindow(
         "Project Bluegem",
-        HOR_RES / SCL_DWN,
-        VER_RES / SCL_DWN,
-        SDL_WINDOW_RESIZABLE
+        win_w,
+        win_h,
+        SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY
     );
     if (!window)
     {

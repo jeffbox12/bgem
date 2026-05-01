@@ -96,12 +96,6 @@ bgem_platform_windowContext* bgem_platform_createContext(SDL_Window *window)
     return ctx;
 }
 
-void bgem_platform_getSurfaceSize(bgem_platform_windowContext *ctx, int *w, int *h)
-{
-    eglQuerySurface(ctx->display, ctx->surface, EGL_WIDTH,  w);
-    eglQuerySurface(ctx->display, ctx->surface, EGL_HEIGHT, h);
-}
-
 void bgem_platform_swapBuffers(bgem_platform_windowContext *ctx)
 {
     eglSwapBuffers(ctx->display, ctx->surface);

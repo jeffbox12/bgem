@@ -49,7 +49,7 @@ int bgem_renderer_loop(bgem_window_handle *wh)
     SDL_Event event;
     int w, h;
 
-    bgem_platform_getSurfaceSize(wh->window_ctx, &w, &h);
+    SDL_GetWindowSizeInPixels(wh->window, &w, &h);
     bgem_renderer_setWindowSize(w, h);
 
     bgem_renderer_init();
@@ -81,7 +81,8 @@ int bgem_renderer_loop(bgem_window_handle *wh)
                 h = event.window.data2;
                 bgem_platform_waylandResizeSurface(wh->window_ctx, w, h);
 #elif defined(__APPLE__)
-                bgem_platform_getSurfaceSize(wh->window_ctx, &w, &h);
+                //bgem_platform_getSurfaceSize(wh->window_ctx, &w, &h);
+                SDL_GetWindowSizeInPixels(wh->window, &w, &h);
 #endif
                 bgem_renderer_setWindowSize(w, h);
             }
