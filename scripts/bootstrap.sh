@@ -116,6 +116,7 @@ install_linux_dependencies() {
             `# Build tools` \
             cmake ninja make pkg-config git \
             autoconf autoconf-archive automake libtool \
+            gcc gcc-c++ \
             `# Scripting runtimes` \
             python3-devel perl perl-base \
             `# Network & archives` \

@@ -3,11 +3,6 @@
  *  Copyright (c) 2026 Cătălin Gabriel Drăghiță
  */
 
-/*
- *  Creating the window and the rendering context
- *  and running the loop
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #if defined(__APPLE__) || defined(__linux__)
@@ -19,16 +14,12 @@
 #endif
 #include <SDL3/SDL.h>
 
-#include "window/init_window.h"
+#include "window/window.h"
 #include "platform/platform_window.h"
+#include "renderer/render_loop.h"
 #include "renderer/shader.h"
 #include "renderer/renderer.h"
 #include "core/debug.h"
-
-// Window resoluton (not internal renderer)
-#define HOR_RES 1920
-#define VER_RES 1080
-#define SCL_DWN 2 // Scale Down using division
 
 static double get_time_seconds(void)
 {
@@ -57,33 +48,14 @@ static double get_time_seconds(void)
 #endif
 }
 
-int bgem_system_start(void)
+int bgem_renderer_loop(bgem_window_handle *wh)
 {
-    SDL_Window *window;
-    SDL_Event event;
-    bgem_platform_windowContext *window_ctx;
     int running = 1;
+    SDL_Event event;
+    int w, h;
 
-    if (SDL_Init(SDL_INIT_VIDEO) == 0)
-    {
-        DEBUG_PRINT("SDL_Init failed: %s\n", SDL_GetError());
-        return EXIT_FAILURE;
-    }
-
-    window = SDL_CreateWindow(
-        "Project Bluegem",
-        HOR_RES / SCL_DWN,
-        VER_RES / SCL_DWN,
-        SDL_WINDOW_RESIZABLE
-    );
-    if (!window)
-    {
-        DEBUG_PRINT("SDL_CreateWindow failed: %s\n", SDL_GetError());
-        return EXIT_FAILURE;
-    }
-
-    window_ctx = bgem_platform_createContext(window);
-    if (!window_ctx) return EXIT_FAILURE;
+    SDL_GetWindowSizeInPixels(wh->window, &w, &h);
+    bgem_renderer_setWindowSize(w, h);
 
     bgem_renderer_init();
 
@@ -105,21 +77,35 @@ int bgem_system_start(void)
             if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
                 running = 0;  // Exit on click
             }
+            if (event.type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED) {
+#if defined(_WIN32)
+                w = event.window.data1;
+                h = event.window.data2;
+#elif defined(__linux__)
+                w = event.window.data1;
+                h = event.window.data2;
+                bgem_platform_waylandResizeSurface(wh->window_ctx, w, h);
+#elif defined(__APPLE__)
+                //bgem_platform_getSurfaceSize(wh->window_ctx, &w, &h);
+                SDL_GetWindowSizeInPixels(wh->window, &w, &h);
+#endif
+                bgem_renderer_setWindowSize(w, h);
+            }
         }
         double current = get_time_seconds();
         float time = (float)(current - startTime);
 
         bgem_renderer_render(time);
 
-        bgem_platform_swapBuffers(window_ctx);
+        bgem_renderer_present(wh->window_ctx, w, h);
 
         frame_time = SDL_GetTicks() - frame_start;
         if (frame_delay > frame_time)
-            SDL_Delay(frame_delay - frame_time);
+            SDL_Delay((Uint32)(frame_delay - frame_time));
     }
 
-    bgem_platform_destroyContext(window_ctx);
-    SDL_DestroyWindow(window);
+    bgem_platform_destroyContext(wh->window_ctx);
+    SDL_DestroyWindow(wh->window);
     SDL_Quit();
     return EXIT_SUCCESS;
 }

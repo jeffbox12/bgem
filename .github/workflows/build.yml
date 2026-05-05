@@ -1,0 +1,83 @@
+name: Build
+on: [push, pull_request]
+
+jobs:
+    bgem-linux-build-x64:
+      runs-on: ubuntu-latest
+      strategy:
+        fail-fast: false
+        matrix:
+          distro:
+            - ubuntu:24.04
+            - fedora:43
+            - archlinux:latest
+            - opensuse/tumbleweed
+      container:
+        image: ${{ matrix.distro }}
+      steps:
+        - uses: actions/checkout@v6
+        - name: Bootstrap
+          run: ./bootstrap-bgem.sh
+        - name: Configure
+          run: cmake --preset debug
+        - name: Build
+          run: ninja -C build/debug
+
+    #
+    # There are no ARM runners of Linux for public GitHub repositories yet
+    #
+
+    # bgem-linux-build-arm:
+    #   runs-on: ubuntu-24.04-arm
+    #   strategy:
+    #     fail-fast: true
+    #     matrix:
+    #       distro:
+    #         - ubuntu:24.04
+    #         - fedora:43
+    #         - archlinux:latest
+    #         - opensuse/tumbleweed
+    #   container:
+    #     image: ${{ matrix.distro }}
+    #   steps:
+    #     - uses: actions/checkout@v6
+    #     - name: Bootstrap
+    #       run: ./bootstrap-bgem.sh
+    #     - name: Configure
+    #       run: cmake --preset debug
+    #     - name: Build
+    #       run: ninja -C build/debug
+
+    bgem-windows-build:
+      runs-on: windows-2025-vs2026
+      strategy:
+        matrix:
+          arch:
+           - amd64
+           - amd64_arm64
+      steps:
+        - uses: actions/checkout@v6
+        - name: Setup MSVC environment
+          uses: ilammy/msvc-dev-cmd@v1
+          with:
+            arch: ${{ matrix.arch }}
+       # The command has to be prefixed with "./" because it is
+       # written add executed under a PowerShell shell instance.
+       # I have to keep this in mind if I debug scripts.
+        - name: Bootstrap
+          run: .\bootstrap-bgem.cmd
+        - name: Configure
+          run: cmake --preset debug
+        - name: Build
+          run: ninja -C build/debug
+
+    bgem-macos-build:
+      runs-on: macos-latest
+      steps:
+        - uses: actions/checkout@v6
+        - name: Bootstrap
+          run: ./bootstrap-bgem.sh
+        - name: Configure
+          run: cmake --preset debug
+        - name: Build
+          run: ninja -C build/debug
