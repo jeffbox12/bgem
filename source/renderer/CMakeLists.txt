@@ -1,6 +1,7 @@
 add_library(renderer
     renderer.c
     shader.c
+    render_loop.c
 )
 
 target_include_directories(renderer PUBLIC

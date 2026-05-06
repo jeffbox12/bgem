@@ -3,14 +3,17 @@
  *  Copyright (c) 2026 Cătălin Gabriel Drăghiță
  */
 
-#include <windows.h>
+#import <Cocoa/Cocoa.h>
+#import <QuartzCore/CAMetalLayer.h>
+#import <Metal/Metal.h>
+
 #include <SDL3/SDL.h>
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 
-#include "platform/platform_window.h"
+#include "platform/platform_egl.h"
 
-/* Internal context */
+/* Internal context struct */
 struct bgem_platform_windowContext
 {
     EGLDisplay display;
@@ -20,26 +23,35 @@ struct bgem_platform_windowContext
 
 bgem_platform_windowContext* bgem_platform_createContext(SDL_Window *window)
 {
-    HWND hwnd;
-    void* hwndPtr;
-    bgem_platform_windowContext* ctx;
+
     SDL_PropertiesID props;
+    NSWindow* cocoaWindow;
+    NSView* view;
+    void *nswindow;
+    CAMetalLayer* metalLayer;
     EGLDisplay display;
     EGLConfig config;
     EGLint numConfigs;
     EGLContext context;
     EGLSurface surface;
+    bgem_platform_windowContext* ctx;
 
     props = SDL_GetWindowProperties(window);
 
+    nswindow = SDL_GetPointerProperty(props,
+                                      SDL_PROP_WINDOW_COCOA_WINDOW_POINTER,
+                                      NULL);
 
-    hwndPtr = SDL_GetPointerProperty(props,
-                                     SDL_PROP_WINDOW_WIN32_HWND_POINTER,
-                                     NULL);
+    cocoaWindow = (__bridge NSWindow *)nswindow;
+    view = cocoaWindow.contentView;
+    view.wantsLayer = YES;
 
-    if (!hwndPtr) return NULL;
+    metalLayer = [CAMetalLayer layer];
+    metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+    metalLayer.framebufferOnly = YES;
+    metalLayer.contentsScale = cocoaWindow.backingScaleFactor;
 
-    hwnd = (HWND)hwndPtr;
+    view.layer = metalLayer;
 
     display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (display == EGL_NO_DISPLAY) return NULL;
@@ -56,15 +68,10 @@ bgem_platform_windowContext* bgem_platform_createContext(SDL_Window *window)
         EGL_GREEN_SIZE,      8,
         EGL_BLUE_SIZE,       8,
         EGL_ALPHA_SIZE,      8,
-        EGL_DEPTH_SIZE,      24,
-        EGL_STENCIL_SIZE,    8,
         EGL_NONE
     };
 
-    if (!eglChooseConfig(display,
-                         configAttribs,
-                         &config, 1, &numConfigs))
-        return NULL;
+    if(!eglChooseConfig(display, configAttribs, &config, 1, &numConfigs)) return NULL;
 
     const EGLint contextAttribs[] =
     {
@@ -72,26 +79,15 @@ bgem_platform_windowContext* bgem_platform_createContext(SDL_Window *window)
         EGL_NONE
     };
 
-    context = eglCreateContext(display, config,
-                               EGL_NO_CONTEXT,
-                               contextAttribs);
+    context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttribs);
 
-    if (context == EGL_NO_CONTEXT) return NULL;
-
-    surface = eglCreateWindowSurface(display,
-                                     config,
-                                     hwnd,
+    surface = eglCreateWindowSurface(display, config,
+                                     (__bridge void *)metalLayer,
                                      NULL);
 
-    if (surface == EGL_NO_SURFACE) return NULL;
+    eglMakeCurrent(display, surface, surface, context);
 
-    if (!eglMakeCurrent(display,
-                        surface,
-                        surface,
-                        context))
-        return NULL;
-
-    ctx = (bgem_platform_windowContext*)malloc(sizeof(bgem_platform_windowContext));
+    ctx = (bgem_platform_windowContext *)malloc(sizeof(bgem_platform_windowContext));
 
     ctx->display = display;
     ctx->surface = surface;

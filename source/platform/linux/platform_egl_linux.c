@@ -12,7 +12,7 @@
 #include <EGL/eglext.h>
 #include <wayland-egl.h>
 
-#include "platform/platform_window.h"
+#include "platform/platform_egl.h"
 #include "core/debug.h"
 
 /* Internal context */

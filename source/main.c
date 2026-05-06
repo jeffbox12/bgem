@@ -4,23 +4,15 @@
  */
 
 /*
- *  Starting point program execution, initialization, handling and processing
- *  of arguments.
+ *  Starting point program execution.
  */
 
 #include <stdlib.h>
 
-#include "window/init_window.h"
+#include "system/system.h"
 #include "core/debug.h"
 
-int main(int argc, char *argv[])
+int main(void)
 {
-    // Suppress warnings
-    // There's no arguments to process yet
-    (void)argc;
-    (void)argv;
-
-    DEBUG_PRINT("Hello Bluegem!");
-
     return bgem_system_start();
 }
