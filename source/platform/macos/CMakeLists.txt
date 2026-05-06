@@ -1,5 +1,5 @@
 add_library(platform
-    platform_window_macos.m
+    platform_egl_macos.m
 )
 
 find_library(METAL Metal)
