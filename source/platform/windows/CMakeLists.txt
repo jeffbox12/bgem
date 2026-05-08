@@ -1,5 +1,7 @@
 add_library(platform
     platform_egl_win.c
+    platform_init_win.c
+    platform_window_win.c
 )
 
 target_include_directories(platform PUBLIC
