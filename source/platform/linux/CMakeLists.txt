@@ -1,5 +1,7 @@
 add_library(platform
     platform_egl_linux.c
+    platform_init_linux.c
+    platform_window_linux.c
 )
 
 target_include_directories(platform PUBLIC

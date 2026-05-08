@@ -9,11 +9,15 @@
 #include "app/app.h"
 #include "core/debug.h"
 #include "bgem_version.h"
+#include "platform/platform_init.h"
 
 #include <SDL3/SDL.h>
 
 int bgem_system_start(void)
 {
+    /* Lock instance */
+    if(bgem_platform_instanceLock() != BGEM_INSTANCE_LOCK_OK) return EXIT_FAILURE;
+
     DEBUG_PRINT("%s", BGEM_VERSION_STRING);
     DEBUG_PRINT("Hello Bluegem!");
 
@@ -27,6 +31,9 @@ int bgem_system_start(void)
     }
 
     if(bgem_app_init()) return EXIT_FAILURE;
+
+    /* Unlock instance once closing the program */
+    bgem_platform_instanceUnlock();
 
     return EXIT_SUCCESS;
 }

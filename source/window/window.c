@@ -17,6 +17,7 @@
 #include "renderer/shader.h"
 #include "renderer/renderer.h"
 #include "core/debug.h"
+#include "bgem.h"
 
 // Window resoluton (not internal renderer)
 #define HOR_RES 1920
@@ -35,7 +36,7 @@ bgem_window_handle* bgem_window_createWindow(void)
     int win_h = (int)((VER_RES / SCL_DWN) * scale);
 
     window = SDL_CreateWindow(
-        "Project Bluegem",
+        BGEM_APP_NAME,
         win_w,
         win_h,
         SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY
