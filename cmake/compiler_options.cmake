@@ -11,6 +11,10 @@ set_target_properties(compiler_options PROPERTIES
     INTERFACE_COMPILE_WARNING_AS_ERROR ON
 )
 
+if (WIN32)
+    target_compile_definitions(compiler_options INTERFACE UNICODE _UNICODE)
+endif()
+
 # Add Compiler Flags
 target_compile_options(compiler_options INTERFACE
     $<$<C_COMPILER_ID:MSVC>:
