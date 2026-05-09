@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.28)
 
-project(bgem LANGUAGES C CXX)
+project(bgem VERSION 0.1.0 LANGUAGES C CXX)
 
 if(APPLE)
     enable_language(OBJC)
@@ -29,5 +29,12 @@ endif ()
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 include(compiler_options)
+include(version)
+
+configure_file(
+    include/bgem_version.h.in
+    ${CMAKE_SOURCE_DIR}/include/bgem_version.h
+    @ONLY
+)
 
 add_subdirectory(source)
