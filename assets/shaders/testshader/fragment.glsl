@@ -1,7 +1,11 @@
+#version 300 es
+
 precision mediump float;
 
 uniform float uTime;
-varying vec2 vUV;
+in vec2 vUV;
+
+out vec4 fragColor;
 
 void main()
 {
@@ -9,5 +13,5 @@ void main()
     float g = 0.5 + 0.5 * sin(uTime + vUV.y * 6.2831);
     float b = 0.5 + 0.5 * sin(uTime);
 
-    gl_FragColor = vec4(r, g, b, 1.0);
+    fragColor = vec4(r, g, b, 1.0);
 }
