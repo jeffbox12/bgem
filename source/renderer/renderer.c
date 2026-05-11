@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 #include <SDL3/SDL.h>
-#include <GLES2/gl2.h>
+#include <GLES3/gl3.h>
 
 #include "renderer/renderer.h"
 #include "renderer/shader.h"
