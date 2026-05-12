@@ -27,6 +27,10 @@
     {
       "name": "opengl",
       "platform": "linux"
+    },
+    {
+      "name": "imgui",
+      "features": ["sdl3-binding"]
     }
   ]
 }

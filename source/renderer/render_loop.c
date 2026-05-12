@@ -62,6 +62,8 @@ int bgem_renderer_loop(bgem_window_handle *wh)
 
     bgem_renderer_init();
 
+    bgem_debug_init(wh->window);
+
     const Uint64 target_fps = 60;
     const Uint64 frame_delay = 1000 / target_fps;
 
@@ -79,6 +81,11 @@ int bgem_renderer_loop(bgem_window_handle *wh)
             }
             if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
                 running = 0;  // Exit on click
+            }
+            if (event.type == SDL_EVENT_KEY_DOWN) {
+                if (event.key.key == SDLK_B) {
+                    bgem_debug_toggle();
+                }
             }
             if (event.type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED) {
 #if defined(_WIN32)
@@ -106,10 +113,13 @@ int bgem_renderer_loop(bgem_window_handle *wh)
         double current = get_time_seconds();
         float time = (float)(current - startTime);
 
+        bgem_debug_newFrame();
 
         bgem_renderer_render(time);
 
         bgem_renderer_present(w, h);
+
+        bgem_debug_render();
 
         bgem_renderer_swap(wh->window_ctx);
 
@@ -118,6 +128,7 @@ int bgem_renderer_loop(bgem_window_handle *wh)
             SDL_Delay((Uint32)(frame_delay - frame_time));
     }
 
+    bgem_debug_shutdown();
     bgem_platform_destroyContext(wh->window_ctx);
     SDL_DestroyWindow(wh->window);
     SDL_Quit();
