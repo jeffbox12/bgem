@@ -26,6 +26,7 @@ else ()
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(WAYLAND_EGL REQUIRED IMPORTED_TARGET wayland-egl)
 endif ()
+find_package(imgui CONFIG REQUIRED)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 include(compiler_options)
