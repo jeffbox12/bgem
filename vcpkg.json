@@ -4,8 +4,14 @@
   "builtin-baseline": "1e199d32ad53aab1defda61ce41c380302e3f95c",
   "dependencies": [
     {
+      "name": "dbus",
+      "default-features": false,
+      "platform": "linux"
+    },
+    {
       "name": "sdl3",
       "features": [ "x11", "wayland" ],
+      "default-features": false,
       "platform": "linux"
     },
     {
