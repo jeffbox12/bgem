@@ -8,8 +8,9 @@ add_subdirectory(window)
 add_subdirectory(renderer)
 add_subdirectory(platform)
 add_subdirectory(app)
-add_subdirectory(debug_tools)
 add_subdirectory(system)
+add_subdirectory(core)
+add_subdirectory(shader)
 
 if (WIN32 OR LINUX)
 add_custom_command(TARGET bgem POST_BUILD
@@ -30,7 +31,8 @@ target_link_libraries(bgem PRIVATE
     system
     app
     renderer
-    debug_tools
+    shader
+    core
     platform
     window
     # SDL3::SDL3
@@ -78,10 +80,10 @@ if(APPLE)
 endif()
 
 target_sources(bgem PRIVATE
-    debug_tools/imgui_backends/imgui_impl_sdl3.cpp
-    debug_tools/imgui_backends/imgui_impl_opengl3.cpp
+    core/imgui_backends/imgui_impl_sdl3.cpp
+    core/imgui_backends/imgui_impl_opengl3.cpp
 )
 
 target_compile_definitions(bgem PRIVATE
-    IMGUI_IMPL_OPENGL_ES3   # ← ES3, not ES2 — bgem targets GLES 3.0
+    IMGUI_IMPL_OPENGL_ES3
 )

@@ -9,8 +9,10 @@
 #include <GLES3/gl3.h>
 
 #include "renderer/renderer.h"
-#include "renderer/shader.h"
+#include "shader/shader.h"
 #include "platform/platform_egl.h"
+#include "system/config.h"
+#include "bgem_defaults.h"
 #include "core/debug.h"
 
 static GLuint program;
@@ -27,14 +29,20 @@ static GLint  blit_texLocation;
 static GLint  blit_posLocation;
 
 /* Internal renderer resolution */
-static int internal_w = 1920;
-static int internal_h = 1080;
+static int internal_w = 0;
+static int internal_h = 0;
 
 /* Cached letterbox viewport */
 static struct {
     int x, y, w, h;
     int window_w, window_h; /* updated via bgem_renderer_setWindowSize() */
 } viewport;
+
+void bgem_renderer_initInternalResolution(bgem_config *cfg)
+{
+    internal_w = cfg->render_width;
+    internal_h = cfg->render_height;
+}
 
 void bgem_renderer_setWindowSize(int w, int h)
 {
@@ -51,12 +59,10 @@ void bgem_renderer_setWindowSize(int w, int h)
     viewport.y = (h - viewport.h) / 2;
 }
 
-void bgem_renderer_init(void)
+void bgem_renderer_init(bgem_config *cfg)
 {
-    /* PLACEHOLDER! Move this to a dedicated file for handling path resolution */
-    const char *basePath = SDL_GetBasePath();
-    if (!basePath)
-        SDL_Log("SDL_GetBasePath failed: %s", SDL_GetError());
+    bgem_renderer_initInternalResolution(cfg);
+    bgem_shader_loadAll();
 
     /* Creste offscreen FBO */
     /* Color texture at internal resolution */
@@ -83,32 +89,13 @@ void bgem_renderer_init(void)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     /* Create `testshader` shader */
-    /* PLACEHOLDER! This shader should not be here. */
-    char vertexPath[1024];
-    snprintf(vertexPath, sizeof(vertexPath),
-             "%sassets/shaders/testshader/vertex.glsl", basePath);
-    DEBUG_PRINT("Opening vertex shader at: %s\n", vertexPath);
-    char fragmentPath[1024];
-    snprintf(fragmentPath, sizeof(fragmentPath),
-             "%sassets/shaders/testshader/fragment.glsl", basePath);
-    DEBUG_PRINT("Opening fragment shader at: %s\n", fragmentPath);
-
-    program     = bgem_shader_createProgram(vertexPath, fragmentPath);
+    /* TODO: This should not be here */
+    program = bgem_shader_get("testshader");
     posLocation = glGetAttribLocation(program, "aPos");
     timeLocation = glGetUniformLocation(program, "uTime");
 
     /* Create `blit` shader */
-    char blit_vert_src[1024];
-    snprintf(blit_vert_src, sizeof(blit_vert_src),
-             "%sassets/shaders/blit/vertex.glsl", basePath);
-    DEBUG_PRINT("Opening vertex shader at: %s\n", blit_vert_src);
-
-    char blit_frag_src[1024];
-    snprintf(blit_frag_src, sizeof(blit_frag_src),
-             "%sassets/shaders/blit/fragment.glsl", basePath);
-    DEBUG_PRINT("Opening fragment shader at: %s\n", blit_frag_src);
-
-    blit_program    = bgem_shader_createProgram(blit_vert_src, blit_frag_src);
+    blit_program = bgem_shader_get("blit");
     blit_posLocation = glGetAttribLocation(blit_program, "aPos");
     blit_texLocation = glGetUniformLocation(blit_program, "uTex");
 
@@ -143,10 +130,10 @@ void bgem_renderer_render(float time)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void bgem_renderer_present(int window_width, int window_height)
+void bgem_renderer_present(void)
 {
     /* Clear the full window (shows letterbox bars in clear color) */
-    glViewport(0, 0, window_width, window_height);
+    glViewport(0, 0, viewport.window_w, viewport.window_h);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -165,4 +152,9 @@ void bgem_renderer_present(int window_width, int window_height)
 void bgem_renderer_swap(bgem_platform_windowContext *ctx)
 {
     bgem_platform_swapBuffers(ctx);
+}
+
+void bgem_renderer_destroyAllShaders(void)
+{
+    bgem_shader_destroyAll();
 }

@@ -8,6 +8,7 @@
 #include "system/system.h"
 #include "app/app.h"
 #include "core/debug.h"
+#include "system/config.h"
 #include "bgem_version.h"
 #include "platform/platform_init.h"
 
@@ -23,6 +24,8 @@ int bgem_system_start(void)
 
     SDL_SetAppMetadata("Project Bluegem", BGEM_VERSION_STRING, "com.bgem.bgem");
 
+    /* Store the current configuration */
+    bgem_config cfg = bgem_config_load();
 
     if (SDL_InitSubSystem(SDL_INIT_VIDEO) == 0)
     {
@@ -30,7 +33,8 @@ int bgem_system_start(void)
         return EXIT_FAILURE;
     }
 
-    if(bgem_app_init()) return EXIT_FAILURE;
+    if(bgem_app_run(&cfg)) return EXIT_FAILURE;
+    SDL_Quit();
 
     /* Unlock instance once closing the program */
     bgem_platform_instanceUnlock();

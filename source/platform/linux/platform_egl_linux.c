@@ -86,13 +86,14 @@ bgem_platform_windowContext* bgem_platform_createContext(SDL_Window *window)
 
             nativeWindow = (EGLNativeWindowType)x11Window;
             display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-            if (display == EGL_NO_DISPLAY) return NULL;
-            }
+            if (display == EGL_NO_DISPLAY)
+                return NULL;
             else
             {
                 DEBUG_PRINT("Environment: %s\n", driver);
                 return NULL;
             }
+        }
     }
 
     if (!eglInitialize(display, NULL, NULL)) return NULL;

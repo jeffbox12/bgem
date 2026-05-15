@@ -1,5 +1,6 @@
 add_library(app
     app.c
+    app_loop.c
 )
 
 target_include_directories(app PUBLIC

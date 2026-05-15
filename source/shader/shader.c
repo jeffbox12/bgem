@@ -8,11 +8,14 @@
 #include <string.h>
 #include <errno.h>
 
-#include "renderer/shader.h"
+#include "shader/shader.h"
+#include "shader/shader_catalog.h"
+#include "core/path.h"
 #include "core/debug.h"
 
+static GLuint bgem_shader_compiledPrograms[BGEM_SHADER_MAX];
 
-static char* ReadFile(const char* path)
+static char* read_file(const char* path)
 {
     FILE* file = fopen(path, "rb");
     if (!file) {
@@ -32,7 +35,7 @@ static char* ReadFile(const char* path)
     return buffer;
 }
 
-static GLuint CompileShader(GLenum type, const char* source)
+static GLuint compile_shader(GLenum type, const char* source)
 {
     if(!source) { DEBUG_PRINT("File does not exist"); return EXIT_FAILURE; }
     GLuint shader = glCreateShader(type);
@@ -54,8 +57,8 @@ static GLuint CompileShader(GLenum type, const char* source)
 
 GLuint bgem_shader_createProgram(const char* vertexPath, const char* fragmentPath)
 {
-    char* vertexSource = ReadFile(vertexPath);
-    char* fragmentSource = ReadFile(fragmentPath);
+    char* vertexSource = read_file(vertexPath);
+    char* fragmentSource = read_file(fragmentPath);
 
     if (!vertexSource || !fragmentSource) {
         DEBUG_PRINT("Failed to read shader source path!");
@@ -64,8 +67,8 @@ GLuint bgem_shader_createProgram(const char* vertexPath, const char* fragmentPat
         return EXIT_FAILURE;
     }
 
-    GLuint vertexShader = CompileShader(GL_VERTEX_SHADER, vertexSource);
-    GLuint fragmentShader = CompileShader(GL_FRAGMENT_SHADER, fragmentSource);
+    GLuint vertexShader = compile_shader(GL_VERTEX_SHADER, vertexSource);
+    GLuint fragmentShader = compile_shader(GL_FRAGMENT_SHADER, fragmentSource);
 
     GLuint program = glCreateProgram();
     glAttachShader(program, vertexShader);
@@ -89,4 +92,37 @@ GLuint bgem_shader_createProgram(const char* vertexPath, const char* fragmentPat
     free(fragmentSource);
 
     return program;
+}
+
+void bgem_shader_loadAll(void)
+{
+    for (int i = 0; bgem_shader_catalog[i].name != NULL; i++)
+    {
+        char vertPath[1024];
+        char fragPath[1024];
+
+        bgem_path_relativeToFull(vertPath, sizeof(vertPath), bgem_shader_catalog[i].vert);
+        bgem_path_relativeToFull(fragPath, sizeof(fragPath), bgem_shader_catalog[i].frag);
+
+        bgem_shader_compiledPrograms[i] = bgem_shader_createProgram(vertPath, fragPath);
+    }
+}
+
+GLuint bgem_shader_get(const char *name)
+{
+    for (int i = 0; bgem_shader_catalog[i].name != NULL; i++)
+    {
+        if (SDL_strcmp(bgem_shader_catalog[i].name, name) == 0)
+            return bgem_shader_compiledPrograms[i];
+    }
+    return 0; /* Not found */
+}
+
+void bgem_shader_destroyAll(void)
+{
+    for (int i = 0; bgem_shader_catalog[i].name != NULL; i++)
+    {
+        glDeleteProgram(bgem_shader_compiledPrograms[i]);
+        bgem_shader_compiledPrograms[i] = 0;
+    }
 }

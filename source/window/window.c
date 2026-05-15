@@ -3,18 +3,12 @@
  *  Copyright (c) 2026 Cătălin Gabriel Drăghiță
  */
 
-/*
- *  Creating the window and the rendering context
- *  and running the loop
- */
-
 #include <stdlib.h>
 
 #include <SDL3/SDL.h>
 
 #include "window/window.h"
 #include "platform/platform_egl.h"
-#include "renderer/shader.h"
 #include "renderer/renderer.h"
 #include "core/debug.h"
 #include "bgem.h"
@@ -24,9 +18,8 @@
 #define VER_RES 1080
 #define SCL_DWN 2 // Scale Down using division
 
-bgem_window_handle* bgem_window_createWindow(bgem_window_mode wm)
+bgem_window_handle* bgem_window_createWindow(bgem_config *cfg)
 {
-    DEBUG_PRINT("Window mode chosen: %d", wm);
     bgem_window_handle* wh = NULL;
     SDL_Window *window;
 
@@ -53,6 +46,33 @@ bgem_window_handle* bgem_window_createWindow(bgem_window_mode wm)
     wh->window = window;
     wh->window_ctx = bgem_platform_createContext(wh->window);
     if (!wh->window_ctx) { free(wh); return NULL; }
+    wh->fullscreen = cfg->fullscreen;
+    SDL_SetWindowFullscreen(wh->window, wh->fullscreen);
 
     return wh;
+}
+
+void bgem_window_handleResize(bgem_window_handle *wh, SDL_Event *event)
+{
+    int w, h;
+
+#if defined(__linux__)
+    w = event->window.data1;
+    h = event->window.data2;
+    bgem_platform_waylandResizeSurface(wh->window_ctx, w, h);
+#elif defined(__APPLE__)
+    (void)event; /* Silence warning */
+    SDL_GetWindowSizeInPixels(wh->window, &w, &h);
+#elif defined(_WIN32)
+    w = event->window.data1;
+    h = event->window.data2;
+#endif
+
+    bgem_renderer_setWindowSize(w, h);
+}
+
+void bgem_window_toggleFullscreen(bgem_window_handle *wh)
+{
+    wh->fullscreen = !wh->fullscreen;
+    SDL_SetWindowFullscreen(wh->window, wh->fullscreen);
 }
