@@ -8,6 +8,8 @@
 
 #include <GLES2/gl2.h>
 
+#include "core/debug.h"
+
 GLuint bgem_shader_createProgram(const char* vertexPath, const char* fragmentPath);
 
 /**
@@ -15,7 +17,7 @@ GLuint bgem_shader_createProgram(const char* vertexPath, const char* fragmentPat
  * Reads the shader list form the catalog, compiles them all
  * and stores the GLuint result in a list.
  */
-void bgem_shader_loadAll(void);
+bgem_result bgem_shader_loadAll(void);
 
 /**
  * @brief

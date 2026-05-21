@@ -24,8 +24,9 @@ bgem_window_handle* bgem_window_createWindow(bgem_config *cfg)
     SDL_Window *window;
 
     SDL_DisplayID display = SDL_GetPrimaryDisplay();
+    if(display == 0) { DEBUG_PRINT("SDL_GetPrimaryDisplay error: %s", SDL_GetError()); return NULL; }
     float scale = SDL_GetDisplayContentScale(display);
-    if (scale <= 0.0f) scale = 1.0f;
+    if(scale <= 0.0f) { scale = 1.0f; DEBUG_PRINT("SDL_GetPrimaryDisplay error: %s", SDL_GetError()); return NULL; }
     int win_w = (int)((HOR_RES / SCL_DWN) * scale);
     int win_h = (int)((VER_RES / SCL_DWN) * scale);
 
@@ -43,11 +44,14 @@ bgem_window_handle* bgem_window_createWindow(bgem_config *cfg)
 
     wh = (bgem_window_handle*)malloc(sizeof(bgem_window_handle));
 
+    if (!wh) { SDL_DestroyWindow(window); return NULL; }
     wh->window = window;
+
     wh->window_ctx = bgem_platform_createContext(wh->window);
-    if (!wh->window_ctx) { free(wh); return NULL; }
+    if (!wh->window_ctx) { SDL_DestroyWindow(window); free(wh); return NULL; }
+
     wh->fullscreen = cfg->fullscreen;
-    SDL_SetWindowFullscreen(wh->window, wh->fullscreen);
+    if(!SDL_SetWindowFullscreen(wh->window, wh->fullscreen)) { DEBUG_PRINT("SDL_SetWindowFullscreen error: %s", SDL_GetError()); }
 
     return wh;
 }
@@ -62,7 +66,7 @@ void bgem_window_handleResize(bgem_window_handle *wh, SDL_Event *event)
     bgem_platform_waylandResizeSurface(wh->window_ctx, w, h);
 #elif defined(__APPLE__)
     (void)event; /* Silence warning */
-    SDL_GetWindowSizeInPixels(wh->window, &w, &h);
+    if(!SDL_GetWindowSizeInPixels(wh->window, &w, &h)) { DEBUG_PRINT("SDL_GetWindowSizeInPixels error: %s", SDL_GetError()); }
 #elif defined(_WIN32)
     w = event->window.data1;
     h = event->window.data2;
@@ -74,5 +78,5 @@ void bgem_window_handleResize(bgem_window_handle *wh, SDL_Event *event)
 void bgem_window_toggleFullscreen(bgem_window_handle *wh)
 {
     wh->fullscreen = !wh->fullscreen;
-    SDL_SetWindowFullscreen(wh->window, wh->fullscreen);
+    if(!SDL_SetWindowFullscreen(wh->window, wh->fullscreen)) { DEBUG_PRINT("SDL_SetWindowFullscreen error: %s", SDL_GetError()); }
 }

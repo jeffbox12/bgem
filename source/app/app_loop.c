@@ -8,7 +8,6 @@
 #include <SDL3/SDL.h>
 
 #include "window/window.h"
-#include "platform/platform_egl.h"
 #include "app/app_loop.h"
 #include "shader/shader.h"
 #include "renderer/renderer.h"
@@ -18,9 +17,10 @@
 #include "core/timer.h"
 #include "core/debug.h"
 
-int bgem_app_loop(bgem_window_handle *wh, bgem_config *cfg)
+bgem_result bgem_app_loop(bgem_window_handle *wh, bgem_config *cfg)
 {
     int running = 1;
+    int status = BGEM_OK;
     SDL_Event event;
 
     bgem_frame_limiter limiter;
@@ -58,11 +58,12 @@ int bgem_app_loop(bgem_window_handle *wh, bgem_config *cfg)
 
         bgem_debug_render();
 
-        bgem_renderer_swap(wh->window_ctx);
+        status = bgem_renderer_swap(wh->window_ctx);
+        if (status != BGEM_OK) { status = BGEM_ERROR_GPU; running = 0; }
 
         bgem_frame_limiterEnd(&limiter);
 
     }
 
-    return EXIT_SUCCESS;
+    return status;
 }

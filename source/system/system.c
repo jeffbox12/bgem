@@ -33,11 +33,17 @@ int bgem_system_start(void)
         return EXIT_FAILURE;
     }
 
-    if(bgem_app_run(&cfg)) return EXIT_FAILURE;
+    if(bgem_app_run(&cfg)) goto cleanup;
     SDL_Quit();
 
     /* Unlock instance once closing the program */
     bgem_platform_instanceUnlock();
 
     return EXIT_SUCCESS;
+
+cleanup:
+    SDL_Quit();
+    bgem_platform_instanceUnlock();
+    return EXIT_FAILURE;
+
 }

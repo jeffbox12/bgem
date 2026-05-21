@@ -11,6 +11,9 @@
 #define PLATFORM_EGL_H
 
 #include <SDL3/SDL.h>
+#include <EGL/egl.h>
+
+#include "core/debug.h"
 
 typedef struct bgem_platform_windowContext bgem_platform_windowContext;
 
@@ -36,8 +39,13 @@ bgem_platform_windowContext* bgem_platform_createContext(SDL_Window *window);
  * @param[in] platformContext
  * The valid window context structure to read from and execute the EGL's swap
  * buffer function.
+ *
+ * @return
+ * EGL_SUCCESS if performed successfully.
+ *
+ * TODO: Handle more errors
  */
-void bgem_platform_swapBuffers(bgem_platform_windowContext *platformContext);
+EGLint bgem_platform_swapBuffers(bgem_platform_windowContext *platformContext);
 
 /**
  * @brief

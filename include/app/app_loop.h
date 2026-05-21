@@ -21,8 +21,9 @@
  * The struct with the current program configuration.
  *
  * @return
- * EXIT_SUCCESS when the loop is ended.
+ * BGEM_OK when the loop is ended with no problems. BGEM_ERROR_GPU if a
+ * failure occurred within the loop.
  */
-int bgem_app_loop(bgem_window_handle *wh, bgem_config *cfg);
+bgem_result bgem_app_loop(bgem_window_handle *wh, bgem_config *cfg);
 
 #endif /* APP_LOOP_H */

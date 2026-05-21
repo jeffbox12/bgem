@@ -95,6 +95,10 @@ bgem_platform_windowContext* bgem_platform_createContext(SDL_Window *window)
             }
         }
     }
+    else
+    {
+        return NULL;
+    }
 
     if (!eglInitialize(display, NULL, NULL)) return NULL;
 
@@ -143,6 +147,14 @@ bgem_platform_windowContext* bgem_platform_createContext(SDL_Window *window)
     if (!eglMakeCurrent(display, surface, surface, context)) return NULL;
 
     ctx = (bgem_platform_windowContext*)malloc(sizeof(bgem_platform_windowContext));
+    if (!ctx)
+    {
+        eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+        eglDestroySurface(display, surface);
+        eglDestroyContext(display, context);
+        eglTerminate(display);
+        return NULL;
+    }
 
     ctx->display = display;
     ctx->surface = surface;
@@ -152,9 +164,14 @@ bgem_platform_windowContext* bgem_platform_createContext(SDL_Window *window)
     return ctx;
 }
 
-void bgem_platform_swapBuffers(bgem_platform_windowContext *ctx)
+EGLint bgem_platform_swapBuffers(bgem_platform_windowContext *ctx)
 {
+    /**
+     * TODO: For now, just fail the program if a failure occurs.
+     * Implement reinitialization later.
+     */
     eglSwapBuffers(ctx->display, ctx->surface);
+    return eglGetError();
 }
 
 void bgem_platform_waylandResizeSurface(bgem_platform_windowContext *ctx, int w, int h)

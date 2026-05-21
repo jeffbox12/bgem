@@ -3,11 +3,13 @@
  *  Copyright (c) 2026 Cătălin Gabriel Drăghiță
  */
 
+#ifndef PATH_H
+#define PATH_H
+
 #include <stdlib.h>
 #include <stdbool.h>
 
-#ifndef PATH_H
-#define PATH_H
+#include "core/debug.h"
 
 /**
  * @brief
@@ -24,10 +26,10 @@
  * The relative path
  *
  * @return
- * FALSE if the output is bigger than the buffer (size).
- * TRUE if the output fits in the buffer.
+ * BGEM_ERROR_IO if the output is bigger than the buffer (size).
+ * BGEM_OK if the output fits in the buffer.
  */
-bool bgem_path_relativeToFull(char *out, size_t size, const char *relative_path);
+bgem_result bgem_path_relativeToFull(char *out, size_t size, const char *relative_path);
 
 #if defined(_WIN32)
     #include <windows.h>

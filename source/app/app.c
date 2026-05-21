@@ -19,12 +19,12 @@ int bgem_app_run(bgem_config *cfg)
     wh = bgem_window_createWindow(cfg);
     if (!wh) return EXIT_FAILURE;
 
-    SDL_GetWindowSizeInPixels(wh->window, &w, &h);
+    if(!SDL_GetWindowSizeInPixels(wh->window, &w, &h)) { DEBUG_PRINT("SDL_GetWindowSizeInPixels failed with %s", SDL_GetError()); return EXIT_FAILURE; }
     bgem_renderer_setWindowSize(w, h);
-    bgem_renderer_init(cfg);
+    if(bgem_renderer_init(cfg)) { DEBUG_PRINT("Failed to initialize the renderer."); return EXIT_FAILURE; }
     bgem_debug_init(wh->window);
 
-    bgem_app_loop(wh, cfg);
+    if(bgem_app_loop(wh, cfg)) { DEBUG_PRINT("Fatal error occurred!"); return EXIT_FAILURE; }
 
     bgem_debug_shutdown();
     bgem_renderer_destroyAllShaders();

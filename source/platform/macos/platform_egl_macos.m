@@ -80,14 +80,24 @@ bgem_platform_windowContext* bgem_platform_createContext(SDL_Window *window)
     };
 
     context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttribs);
+    if (context == EGL_NO_CONTEXT) return NULL;
 
     surface = eglCreateWindowSurface(display, config,
                                      (__bridge void *)metalLayer,
                                      NULL);
+    if (surface == EGL_NO_SURFACE) return NULL;
 
     eglMakeCurrent(display, surface, surface, context);
 
     ctx = (bgem_platform_windowContext *)malloc(sizeof(bgem_platform_windowContext));
+    if (!ctx)
+    {
+        eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+        eglDestroySurface(display, surface);
+        eglDestroyContext(display, context);
+        eglTerminate(display);
+        return NULL;
+    }
 
     ctx->display = display;
     ctx->surface = surface;
@@ -96,9 +106,10 @@ bgem_platform_windowContext* bgem_platform_createContext(SDL_Window *window)
     return ctx;
 }
 
-void bgem_platform_swapBuffers(bgem_platform_windowContext *ctx)
+EGLint bgem_platform_swapBuffers(bgem_platform_windowContext *ctx)
 {
     eglSwapBuffers(ctx->display, ctx->surface);
+    return eglGetError();
 }
 
 void bgem_platform_destroyContext(bgem_platform_windowContext *ctx)

@@ -8,6 +8,7 @@
 
 #include "window/window.h"
 #include "system/config.h"
+#include "core/debug.h"
 
 /**
  * @brief
@@ -31,7 +32,7 @@ void bgem_renderer_setWindowSize(int w, int h);
  * @param[in] cfg
  * Reads the interal resolution settings
  */
-void bgem_renderer_init(bgem_config *cfg);
+bgem_result bgem_renderer_init(bgem_config *cfg);
 
 /**
  * @brief
@@ -54,8 +55,13 @@ void bgem_renderer_present(void);
  *
  * @param[in] ctx
  * Send the buffer swap to the context
+ *
+ * @return
+ * EGL_SUCCESS if successful.
+ *
+ * TODO: Handle other errors
  */
-void bgem_renderer_swap(bgem_platform_windowContext *ctx);
+bgem_result bgem_renderer_swap(bgem_platform_windowContext *ctx);
 
 /**
  * @brief

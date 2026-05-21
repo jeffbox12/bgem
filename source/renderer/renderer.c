@@ -59,10 +59,10 @@ void bgem_renderer_setWindowSize(int w, int h)
     viewport.y = (h - viewport.h) / 2;
 }
 
-void bgem_renderer_init(bgem_config *cfg)
+bgem_result bgem_renderer_init(bgem_config *cfg)
 {
     bgem_renderer_initInternalResolution(cfg);
-    bgem_shader_loadAll();
+    if(bgem_shader_loadAll()) { DEBUG_PRINT("Failed loading shaders"); return BGEM_ERROR_IO; }
 
     /* Creste offscreen FBO */
     /* Color texture at internal resolution */
@@ -84,18 +84,23 @@ void bgem_renderer_init(bgem_config *cfg)
 
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE)
+    {
         DEBUG_PRINT("FBO incomplete: 0x%x\n", status);
+        return BGEM_ERROR_GPU;
+    }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     /* Create `testshader` shader */
     /* TODO: This should not be here */
     program = bgem_shader_get("testshader");
+    if (!program) { DEBUG_PRINT("Shader 'testshader' not found"); return BGEM_ERROR_IO; }
     posLocation = glGetAttribLocation(program, "aPos");
     timeLocation = glGetUniformLocation(program, "uTime");
 
     /* Create `blit` shader */
     blit_program = bgem_shader_get("blit");
+    if (!blit_program) { DEBUG_PRINT("Shader 'blit' not found"); return BGEM_ERROR_IO; }
     blit_posLocation = glGetAttribLocation(blit_program, "aPos");
     blit_texLocation = glGetUniformLocation(blit_program, "uTex");
 
@@ -111,6 +116,8 @@ void bgem_renderer_init(bgem_config *cfg)
     glGenBuffers(1, &blit_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, blit_vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    return BGEM_OK;
 }
 
 void bgem_renderer_render(float time)
@@ -149,9 +156,12 @@ void bgem_renderer_present(void)
     glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
-void bgem_renderer_swap(bgem_platform_windowContext *ctx)
+bgem_result bgem_renderer_swap(bgem_platform_windowContext *ctx)
 {
-    bgem_platform_swapBuffers(ctx);
+    if (bgem_platform_swapBuffers(ctx) != EGL_SUCCESS)
+        return BGEM_ERROR_GPU;
+    else
+        return BGEM_OK;
 }
 
 void bgem_renderer_destroyAllShaders(void)

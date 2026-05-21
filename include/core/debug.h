@@ -16,6 +16,19 @@
     #define DEBUG_PRINT(fmt, ...) do {} while (0)
 #endif
 
+/**
+ * @brief
+ * List of error codes returned by bgem's functions for error handling
+ */
+typedef enum {
+    BGEM_OK = 0, /**< Executed successfully */
+    BGEM_ERROR_GPU, /**< Graphics or rendering error */
+    BGEM_ERROR_PLATFORM, /**< Operating system function error */
+    BGEM_ERROR_OOM, /**< Out of memory error */
+    BGEM_ERROR_IO, /**< File operation error */
+    BGEM_ERROR_NOT_FOUND /**< An asset or file is not available */
+} bgem_result;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
