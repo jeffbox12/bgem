@@ -98,8 +98,8 @@ void bgem_shader_loadAll(void)
 {
     for (int i = 0; bgem_shader_catalog[i].name != NULL; i++)
     {
-        char vertPath[1024];
-        char fragPath[1024];
+        char vertPath[BGEM_PATH_MAX];
+        char fragPath[BGEM_PATH_MAX];
 
         bgem_path_relativeToFull(vertPath, sizeof(vertPath), bgem_shader_catalog[i].vert);
         bgem_path_relativeToFull(fragPath, sizeof(fragPath), bgem_shader_catalog[i].frag);

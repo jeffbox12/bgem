@@ -29,4 +29,16 @@
  */
 bool bgem_path_relativeToFull(char *out, size_t size, const char *relative_path);
 
+#if defined(_WIN32)
+    #include <windows.h>
+    #define BGEM_PATH_MAX MAX_PATH
+#else
+    #include <limits.h>
+    #if defined(PATH_MAX)
+        #define BGEM_PATH_MAX PATH_MAX
+    #else
+        #define BGEM_PATH_MAX 4096  /* POSIX fallback for filesystems without a fixed limit */
+    #endif
+#endif
+
 #endif /* PATH_H */
