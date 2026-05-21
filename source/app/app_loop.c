@@ -37,7 +37,7 @@ bgem_result bgem_app_loop(bgem_window_handle *wh, bgem_config *cfg)
             }
             if (event.type == SDL_EVENT_KEY_DOWN) {
                 if (event.key.key == SDLK_B) {
-                    bgem_debug_toggle();
+                    BGEM_DEBUG_TOGGLE();
                 }
             }
             if (event.type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED) {
@@ -50,13 +50,13 @@ bgem_result bgem_app_loop(bgem_window_handle *wh, bgem_config *cfg)
             }
         }
 
-        bgem_debug_newFrame();
+        BGEM_DEBUG_NEWFRAME();
 
         bgem_renderer_render((float)limiter.elapsed);
 
         bgem_renderer_present();
 
-        bgem_debug_render();
+        BGEM_DEBUG_RENDER();
 
         status = bgem_renderer_swap(wh->window_ctx);
         if (status != BGEM_OK) { status = BGEM_ERROR_GPU; running = 0; }

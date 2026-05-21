@@ -33,6 +33,7 @@ typedef enum {
 extern "C" {
 #endif
 
+#ifdef DEBUG
 /**
  * @brief
  * Initialize the Imgui debug UI
@@ -82,6 +83,23 @@ void bgem_debug_render(void);
  * TRUE if enabled. FALSE if disabled.
  */
 int  bgem_debug_isActive(void);
+
+#define BGEM_DEBUG_INIT(window)        bgem_debug_init(window)
+#define BGEM_DEBUG_SHUTDOWN()          bgem_debug_shutdown()
+#define BGEM_DEBUG_TOGGLE()            bgem_debug_toggle()
+#define BGEM_DEBUG_NEWFRAME()          bgem_debug_newFrame()
+#define BGEM_DEBUG_RENDER()            bgem_debug_render()
+#define BGEM_DEBUG_ISACTIVE()          bgem_debug_isActive()
+
+#else
+#define BGEM_DEBUG_INIT(window)        ((void)0)
+#define BGEM_DEBUG_SHUTDOWN()          ((void)0)
+#define BGEM_DEBUG_TOGGLE()            ((void)0)
+#define BGEM_DEBUG_NEWFRAME()          ((void)0)
+#define BGEM_DEBUG_RENDER()            ((void)0)
+#define BGEM_DEBUG_ISACTIVE()          ((void)0)
+
+#endif
 
 #ifdef __cplusplus
 }
