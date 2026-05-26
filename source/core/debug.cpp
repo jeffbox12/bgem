@@ -13,6 +13,7 @@ static int s_active = 0;
 void bgem_debug_init(SDL_Window *window) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+    ImGui::GetIO().IniFilename = NULL;
     ImGui_ImplSDL3_InitForOpenGL(window, NULL);
     ImGui_ImplOpenGL3_Init("#version 300 es");
 }
