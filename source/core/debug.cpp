@@ -27,6 +27,10 @@ void bgem_debug_shutdown(void) {
 void bgem_debug_toggle(void)    { s_active = !s_active; }
 int  bgem_debug_isActive(void)  { return s_active; }
 
+void bgem_debug_processEvent(SDL_Event *event) {
+    ImGui_ImplSDL3_ProcessEvent(event);
+}
+
 void bgem_debug_newFrame(void) {
     if (!s_active) return;
     ImGui_ImplOpenGL3_NewFrame();

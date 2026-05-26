@@ -84,20 +84,35 @@ void bgem_debug_render(void);
  */
 int  bgem_debug_isActive(void);
 
-#define BGEM_DEBUG_INIT(window)        bgem_debug_init(window)
-#define BGEM_DEBUG_SHUTDOWN()          bgem_debug_shutdown()
-#define BGEM_DEBUG_TOGGLE()            bgem_debug_toggle()
-#define BGEM_DEBUG_NEWFRAME()          bgem_debug_newFrame()
-#define BGEM_DEBUG_RENDER()            bgem_debug_render()
-#define BGEM_DEBUG_ISACTIVE()          bgem_debug_isActive()
+/**
+ * @brief
+ * Forward an SDL event to the ImGui backend.
+ *
+ * Must be called for every SDL event polled, regardless of the debug
+ * overlay's active state. ImGui needs the raw event stream to track
+ * mouse, keyboard and text input correctly.
+ *
+ * @param[in] event
+ * The SDL event to forward.
+ */
+void bgem_debug_processEvent(SDL_Event *event);
+
+#define BGEM_DEBUG_INIT(window)          bgem_debug_init(window)
+#define BGEM_DEBUG_SHUTDOWN()            bgem_debug_shutdown()
+#define BGEM_DEBUG_TOGGLE()              bgem_debug_toggle()
+#define BGEM_DEBUG_NEWFRAME()            bgem_debug_newFrame()
+#define BGEM_DEBUG_RENDER()              bgem_debug_render()
+#define BGEM_DEBUG_ISACTIVE()            bgem_debug_isActive()
+#define BGEM_DEBUG_PROCESSEVENT(event)   bgem_debug_processEvent(event)
 
 #else
-#define BGEM_DEBUG_INIT(window)        ((void)0)
-#define BGEM_DEBUG_SHUTDOWN()          ((void)0)
-#define BGEM_DEBUG_TOGGLE()            ((void)0)
-#define BGEM_DEBUG_NEWFRAME()          ((void)0)
-#define BGEM_DEBUG_RENDER()            ((void)0)
-#define BGEM_DEBUG_ISACTIVE()          ((void)0)
+#define BGEM_DEBUG_INIT(window)          ((void)0)
+#define BGEM_DEBUG_SHUTDOWN()            ((void)0)
+#define BGEM_DEBUG_TOGGLE()              ((void)0)
+#define BGEM_DEBUG_NEWFRAME()            ((void)0)
+#define BGEM_DEBUG_RENDER()              ((void)0)
+#define BGEM_DEBUG_ISACTIVE()            ((void)0)
+#define BGEM_DEBUG_PROCESSEVENT(event)   ((void)0)
 
 #endif
 

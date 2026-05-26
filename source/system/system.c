@@ -11,6 +11,7 @@
 #include "system/config.h"
 #include "bgem_version.h"
 #include "platform/platform_init.h"
+#include "input/input.h"
 
 #include <SDL3/SDL.h>
 
@@ -27,7 +28,7 @@ int bgem_system_start(void)
     /* Store the current configuration */
     bgem_config cfg = bgem_config_load();
 
-    if (SDL_InitSubSystem(SDL_INIT_VIDEO) == 0)
+    if (SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD) == 0)
     {
         DEBUG_PRINT("SDL_Init failed: %s\n", SDL_GetError());
         return EXIT_FAILURE;

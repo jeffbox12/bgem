@@ -11,6 +11,7 @@ add_subdirectory(app)
 add_subdirectory(system)
 add_subdirectory(core)
 add_subdirectory(shader)
+add_subdirectory(input)
 
 if (WIN32 OR LINUX)
 add_custom_command(TARGET bgem POST_BUILD
@@ -30,6 +31,7 @@ target_link_libraries(bgem PRIVATE
     compiler_options
     system
     app
+    input
     renderer
     shader
     core
