@@ -3,6 +3,7 @@ add_library(core
     timer.c
     frame_limiter.c
     debug.cpp
+    debug_defaults.c
 )
 
 add_subdirectory(imgui_backends)

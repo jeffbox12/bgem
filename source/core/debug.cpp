@@ -4,6 +4,7 @@
  */
 
 #include "core/debug.h"
+#include "core/debug_defaults.h"
 #include "imgui.h"
 #include "imgui_backends/imgui_impl_sdl3.h"
 #include "imgui_backends/imgui_impl_opengl3.h"
@@ -38,7 +39,8 @@ void bgem_debug_newFrame(void) {
     ImGui::NewFrame();
 
     ImGui::Begin("Debug");
-    ImGui::Text("Hello World");
+    ImGui::Text("Input");
+    ImGui::Checkbox("Enable input log on the console", &inputLog);
     ImGui::End();
 }
 

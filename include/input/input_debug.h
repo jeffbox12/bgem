@@ -8,6 +8,11 @@
 
 #ifdef DEBUG
 
+#include <stdbool.h>
+
+#include "window/window.h"
+#include "core/debug_defaults.h"
+
 /**
  * @brief
  * Activate the debug interface and track input in the logs
