@@ -14,7 +14,10 @@ static int s_active = 0;
 void bgem_debug_init(SDL_Window *window) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGui::GetIO().IniFilename = NULL;
+    ImGuiIO &io = ImGui::GetIO();
+    io.IniFilename = NULL;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     ImGui_ImplSDL3_InitForOpenGL(window, NULL);
     ImGui_ImplOpenGL3_Init("#version 300 es");
 }
