@@ -6,72 +6,60 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
+#include <GLES3/gl3.h>
 #include "window/window.h"
 #include "system/config.h"
 #include "core/debug.h"
 
 /**
  * @brief
- * Sets a new client area size to compute the viewport area
+ * Update the letterbox viewport from a new client area size.
  *
- * @param[in] w
- * Width in pixels
+ * Call this whenever a window resize event is received.
  *
- * @param[in] h
- * Height in pixels
+ * @param[in] w  New width in pixels.
+ * @param[in] h  New height in pixels.
  */
 void bgem_renderer_setWindowSize(int w, int h);
 
 /**
  * @brief
- * Initialization routine for rendering
+ * Initialize the renderer.
  *
- * Loads shaders, creates the FBO, the fullscreen triangle, and the blit
- * shader.
+ * Compiles the blit shader and allocates the fullscreen triangle VBO.
+ * Must be called after bgem_shader_loadAll().
  *
- * @param[in] cfg
- * Reads the interal resolution settings
+ * @param[in] cfg  Reads the internal resolution settings.
  */
 bgem_result bgem_renderer_init(bgem_config *cfg);
 
 /**
  * @brief
- * Perform the rendering.
+ * Blit the compositor result to the window with letterboxing.
  *
- * @param[in] time
- * Time elapsed for time dependent shader animations.
+ * Clears the full window to black, then draws tex into the fitted
+ * letterbox viewport. Call bgem_renderer_swap() afterwards.
+ *
+ * @param[in] tex  GL texture handle returned by bgem_compositor_composite().
  */
-void bgem_renderer_render(float time);
+void bgem_renderer_present(GLuint tex);
 
 /**
  * @brief
- * Draw the current FBO to the blit shader
- */
-void bgem_renderer_present(void);
-
-/**
- * @brief
- * Swap buffers
+ * Swap the EGL back buffer to screen.
  *
- * @param[in] ctx
- * Send the buffer swap to the context
- *
- * @return
- * EGL_SUCCESS if successful.
- *
- * TODO: Handle other errors
+ * @param[in] ctx  The platform window context.
+ * @return BGEM_OK on success, BGEM_ERROR_GPU on EGL failure.
  */
 bgem_result bgem_renderer_swap(bgem_platform_windowContext *ctx);
 
 /**
  * @brief
- * Destroy all the shaders.
+ * Destroy all compiled shaders.
  *
- * Call this after `bgem_renderer_init()`
- *
- * TODO: Shaders are created by bgem_renderer_init() because it calls bgem_shader_loadAll().
- * bgem_renderer_destroyAllShaders() calls bgem_shader_destroyAll(). These might not be
- * renderer concerned, and might require restructure and a clear separation. Review this.
+ * TODO: bgem_shader_loadAll() is currently called from app.c rather than
+ * here. bgem_renderer_destroyAllShaders() and its counterpart may belong
+ * at the app level once the shader lifecycle is clarified.
  */
 void bgem_renderer_destroyAllShaders(void);
 

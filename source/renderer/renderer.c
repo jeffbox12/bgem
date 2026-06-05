@@ -3,8 +3,6 @@
  *  Copyright (c) 2026 Cătălin Gabriel Drăghiță
  */
 
-#include <stdlib.h>
-
 #include <SDL3/SDL.h>
 #include <GLES3/gl3.h>
 
@@ -15,18 +13,10 @@
 #include "bgem_defaults.h"
 #include "core/debug.h"
 
-static GLuint program;
-static GLuint vbo;
-static GLint  timeLocation;
-static GLint  posLocation;
-
-static GLuint fbo;
-static GLuint fbo_texture;
-
 static GLuint blit_program;
 static GLuint blit_vbo;
-static GLint  blit_texLocation;
-static GLint  blit_posLocation;
+static GLint  blit_tex_loc;
+static GLint  blit_pos_loc;
 
 /* Internal renderer resolution */
 static int internal_w = 0;
@@ -35,14 +25,8 @@ static int internal_h = 0;
 /* Cached letterbox viewport */
 static struct {
     int x, y, w, h;
-    int window_w, window_h; /* updated via bgem_renderer_setWindowSize() */
+    int window_w, window_h;
 } viewport;
-
-void bgem_renderer_initInternalResolution(bgem_config *cfg)
-{
-    internal_w = cfg->render_width;
-    internal_h = cfg->render_height;
-}
 
 void bgem_renderer_setWindowSize(int w, int h)
 {
@@ -61,99 +45,42 @@ void bgem_renderer_setWindowSize(int w, int h)
 
 bgem_result bgem_renderer_init(bgem_config *cfg)
 {
-    bgem_renderer_initInternalResolution(cfg);
-    if(bgem_shader_loadAll()) { DEBUG_PRINT("Failed loading shaders"); return BGEM_ERROR_IO; }
+    internal_w = cfg->render_width;
+    internal_h = cfg->render_height;
 
-    /* Creste offscreen FBO */
-    /* Color texture at internal resolution */
-    glGenTextures(1, &fbo_texture);
-    glBindTexture(GL_TEXTURE_2D, fbo_texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-                 internal_w, internal_h,
-                 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    /* FBO */
-    glGenFramebuffers(1, &fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                           GL_TEXTURE_2D, fbo_texture, 0);
-
-    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if (status != GL_FRAMEBUFFER_COMPLETE)
-    {
-        DEBUG_PRINT("FBO incomplete: 0x%x\n", status);
-        return BGEM_ERROR_GPU;
-    }
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    /* Create `testshader` shader */
-    /* TODO: This should not be here */
-    program = bgem_shader_get("testshader");
-    if (!program) { DEBUG_PRINT("Shader 'testshader' not found"); return BGEM_ERROR_IO; }
-    posLocation = glGetAttribLocation(program, "aPos");
-    timeLocation = glGetUniformLocation(program, "uTime");
-
-    /* Create `blit` shader */
     blit_program = bgem_shader_get("blit");
     if (!blit_program) { DEBUG_PRINT("Shader 'blit' not found"); return BGEM_ERROR_IO; }
-    blit_posLocation = glGetAttribLocation(blit_program, "aPos");
-    blit_texLocation = glGetUniformLocation(blit_program, "uTex");
+    blit_pos_loc = glGetAttribLocation(blit_program,  "aPos");
+    blit_tex_loc = glGetUniformLocation(blit_program, "uTex");
 
-    /* Define vertices for fullscreen triangle */
-    float vertices[] = { -1.0f, -1.0f,  3.0f, -1.0f,  -1.0f,  3.0f };
-
-    /* Store vertices in a buffer */
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    /* Reuse the same fullscreen triangle geometry */
+    float verts[] = { -1.0f, -1.0f,  3.0f, -1.0f,  -1.0f,  3.0f };
     glGenBuffers(1, &blit_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, blit_vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     return BGEM_OK;
 }
 
-void bgem_renderer_render(float time)
+void bgem_renderer_present(GLuint tex)
 {
-    /* Render scene into FBO at internal resolution */
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-    glViewport(0, 0, internal_w, internal_h);
-
-    glClear(GL_COLOR_BUFFER_BIT);
-    glUseProgram(program);
-    glUniform1f(timeLocation, time);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glEnableVertexAttribArray(posLocation);
-    glVertexAttribPointer(posLocation, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-void bgem_renderer_present(void)
-{
-    /* Clear the full window (shows letterbox bars in clear color) */
+    /* Clear the full window (fills letterbox bars with black) */
     glViewport(0, 0, viewport.window_w, viewport.window_h);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    /* Blit FBO texture into the fitted rect */
+    /* Blit the compositor result into the fitted letterbox rect */
     glViewport(viewport.x, viewport.y, viewport.w, viewport.h);
     glUseProgram(blit_program);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, fbo_texture);
-    glUniform1i(blit_texLocation, 0);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glUniform1i(blit_tex_loc, 0);
     glBindBuffer(GL_ARRAY_BUFFER, blit_vbo);
-    glEnableVertexAttribArray(blit_posLocation);
-    glVertexAttribPointer(blit_posLocation, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(blit_pos_loc);
+    glVertexAttribPointer(blit_pos_loc, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDisableVertexAttribArray(blit_pos_loc);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 bgem_result bgem_renderer_swap(bgem_platform_windowContext *ctx)

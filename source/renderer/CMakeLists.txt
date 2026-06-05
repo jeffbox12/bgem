@@ -1,5 +1,6 @@
 add_library(renderer
     renderer.c
+    fbo.c
 )
 
 target_include_directories(renderer PUBLIC

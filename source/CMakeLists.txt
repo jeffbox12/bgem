@@ -12,6 +12,8 @@ add_subdirectory(system)
 add_subdirectory(core)
 add_subdirectory(shader)
 add_subdirectory(input)
+add_subdirectory(layers)
+add_subdirectory(compositor)
 
 if (WIN32 OR LINUX)
 add_custom_command(TARGET bgem POST_BUILD
@@ -31,6 +33,8 @@ target_link_libraries(bgem PRIVATE
     compiler_options
     system
     app
+    compositor
+    layers
     input
     renderer
     shader
