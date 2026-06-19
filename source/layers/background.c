@@ -17,10 +17,10 @@ static float  time_accum;
 
 bgem_result bgem_background_init(void)
 {
-    program = bgem_shader_get("testshader");
+    program = bgem_shader_get("background");
     if (!program) /* TODO: Maybe redundant? If a call to load all the shaders is done, maybe the checks should be done there. */
     {
-        DEBUG_PRINT("bgem_background_init: shader 'testshader' not found");
+        DEBUG_PRINT("bgem_background_init: shader 'background' not found");
         return BGEM_ERROR_IO;
     }
 
