@@ -12,7 +12,6 @@
  * @brief
  * Initializes the UI layer.
  *
- * Currently a transparent stub.
  */
 bgem_result bgem_ui_init(void);
 
