@@ -11,6 +11,7 @@ const bgem_shader_descriptor bgem_shader_catalog[] = {
     { "testshader", "assets/shaders/testshader/vertex.glsl", "assets/shaders/testshader/fragment.glsl" },
     { "background", "assets/shaders/background/vertex.glsl", "assets/shaders/background/fragment.glsl" },
     { "blend",      "assets/shaders/blend/vertex.glsl",      "assets/shaders/blend/fragment.glsl"      },
+    { "text",       "assets/shaders/text/vertex.glsl",       "assets/shaders/text/fragment.glsl"       },
     { NULL, NULL, NULL } /* End of list */
 };
 

@@ -12,6 +12,7 @@ add_subdirectory(system)
 add_subdirectory(core)
 add_subdirectory(shader)
 add_subdirectory(input)
+add_subdirectory(text)
 add_subdirectory(layers)
 add_subdirectory(compositor)
 

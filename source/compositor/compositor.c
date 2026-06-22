@@ -16,6 +16,8 @@
 #include "layers/overlay.h"
 #include "layers/notifications.h"
 
+#include "text/text.h"
+
 #include "core/debug.h"
 
 /* Per-layer FBOs, indexed by bgem_layer_id */
@@ -73,6 +75,14 @@ bgem_result bgem_compositor_init(int width, int height)
     if (status != BGEM_OK) return status;
 
     /*
+     * Text objects are layer-agnostic - any layer's init() below may call
+     * bgem_text_addText(), so the text system has to be ready before all
+     * of them, not just the UI layer.
+     */
+    status = bgem_text_init(width, height);
+    if (status != BGEM_OK) { DEBUG_PRINT("bgem_compositor_init: text init failed"); return status; }
+
+    /*
      * NOTE: If the order changes, remember to reflect the change in the
      *       blend fragment shader.
      */
@@ -102,6 +112,8 @@ void bgem_compositor_shutdown(void)
     bgem_ui_destroy();
     bgem_application_destroy();
     bgem_background_destroy();
+
+    bgem_text_shutdown();
 
     bgem_blend_shutdown();
 
