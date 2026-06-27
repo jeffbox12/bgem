@@ -1,3 +1,5 @@
+This branch has been archived and is no longer being worked on.
+
 # Project Bluegem
 
 🚧 UNDER CONSTRUCTION 🚧
